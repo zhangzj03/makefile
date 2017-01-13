@@ -41,3 +41,45 @@ netsdk
 
 3.respapp/include/commonhead.h
 1)增加#include <netinet/in.h>
+
+
+4.include/RtspClient.h中
+
+typedef enum 原名 {
+	
+} 新名；
+新名一定要加，否则报 warning
+
+
+5.include/common.h
+linux 没有CALLBACK __stdcall__
+
+所以增加宏定义
+#if  __WIN32_OS__
+#define CALLBACK __stdcall
+#elif __LINUX_OS__
+#define CALLBACK
+#endif
+
+6.RtpSession.h
+头文件的#ifndef 一定不要 写成#ifdef
+否则包含不了RtpSession.h
+且报  error: ISO C++ forbids declaration of ‘RtpSession’ with no type
+
+
+
+文件编辑
+1.去掉
+三种行尾格式如下:
+unix : \n
+dos: \r\n
+mac : \r
+这意味着，如果你试图把一个文件从一种系统移到另一种系统，那么你就有换行符方面的麻烦。 
+因为MS-DOS及Windows是回车＋换行来表示换行，因此在Linux下用Vim查看在Windows下写的代码，行尾后“^M”符号。 
+在Vim中解决这个问题，很简单，在Vim中利用替换功能就可以将“^M”都删掉，键入如下替换命令行： 
+:%s/^M//g
+注意： 
+上述命令行中的“^M”符，不是“^”再加上“M”，而是由“Ctrl+v”、“Ctrl+M”键生成的，或者Ctrl+v，再按回车。 
+或者使用这个命令： 
+:% s/\r//g
+
