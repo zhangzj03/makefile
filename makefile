@@ -52,7 +52,7 @@ typedef enum 原名 {
 
 
 5.include/common.h
-linux 没有CALLBACK __stdcall__
+1)linux 没有CALLBACK __stdcall__
 
 所以增加宏定义
 #if  __WIN32_OS__
@@ -60,13 +60,33 @@ linux 没有CALLBACK __stdcall__
 #elif __LINUX_OS__
 #define CALLBACK
 #endif
+2)linux数据类型没有DWORD 
+vs2005 08 为 typedef unsinged long DWORD (32bit)
+
+所以linxu下若为设备
+###################################
+先定义为typedef unsing long DWORD
+
+
+
+
 
 6.RtpSession.h
-头文件的#ifndef 一定不要 写成#ifdef
+1)头文件的#ifndef 一定不要 写成#ifdef
 否则包含不了RtpSession.h
 且报  error: ISO C++ forbids declaration of ‘RtpSession’ with no type
 
+2)RtpSession.h
+	static DWORD WINAPI ThreadFunc的处理
+	static DWORD WINAPI RecvProc的处理 
 
+7.RtspClient.cpp
+1).屏蔽windows类型的头文件
+2) 59行左右中间出现windows头文件 common.h strDup.h
+3) strcpy 未发现 增加 "string.h"
+4) 对OutPutDebugString加锁
+5）对Sleep的处理
+sleep,nanosleep,usleep,
 
 文件编辑
 1.去掉
