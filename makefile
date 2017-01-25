@@ -36,7 +36,7 @@ netsdk
 
 #
 二.具体文件(中期用#ifndef UNIXCON来屏蔽WINDOWS代码)
-1.rtspapp/targetver.h修改
+1.rtspapp/targetver.h修改(vc08下rtspApp.dll,现在librtsApp.so)
 1)统一用#ifndef 
 
 
@@ -186,7 +186,7 @@ GetAdaptersInfo 等window下的 Iphlpapi
 
 用 UNIXCON 屏蔽 
 
-(三)StreamParse
+(三)StreamParse(原vc工程生成StreamParse.lib，现libStreamParse.so
 1.FrameList.h
 1)不用模板分离编译模式，
 2.utils.h
@@ -195,7 +195,8 @@ GetAdaptersInfo 等window下的 Iphlpapi
 
 
 
-(四)TPLayer的处理
+
+(四)TPLayer的处理(原vc工程TPLayer.lib，现libTPLayer.so)
 1.dh_atomin.h中
 1)<linux/config.h>
 未添加 ，找不到合适的，就屏蔽吧,
