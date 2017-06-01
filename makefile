@@ -964,3 +964,317 @@ mac : \r
 或者使用这个命令： 
 :% s/\r//g
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//20170522 接唐工netsdk重新编译 mmm platform/common/sofia/sdk -B
+1)platform/common/sofia/sdk/netsdk/Client_SDK/NetSDK.h:133: error: conflicting declaration 'typedef void (* FRtspCallBack)(intptr_t, unsigned char*, int, int)'
+./platform/common/sofia/sdk/netsdk/inc/libmodel.h:1937: error: 'FRtspCallBack' has a previous declaration as 'typedef void (* FRtspCallBack)(long int, unsigned char*, int, int)'
+platform/common/sofia/sdk/netsdk/Client_SDK/NetSDK.cpp: In function 'intptr_t CLIENT_RtspPlay(const char*, int&, void*, int, void (*)(long int, unsigned char*, int, int), int)':
+platform/common/sofia/sdk/netsdk/Client_SDK/NetSDK.cpp:724: error: declaration of C function 'intptr_t CLIENT_RtspPlay(const char*, int&, void*, int, void (*)(long int, unsigned char*, int, int), int)' conflicts with
+platform/common/sofia/sdk/netsdk/Client_SDK/NetSDK.h:145: error: previous declaration 'long int CLIENT_RtspPlay(const char*, int&, void*, int, void (*)(long int, unsigned char*, int, int), int)' here
+
+
+
+
+
+2)platform/common/sofia/sdk/netsdk/Client_SDK/Talk.cpp:1942: error: prototype for 'void CTalk::RecordFunc(unsigned char*, long unsigned int, long int)' does not match any in class 'CTalk'
+platform/common/sofia/sdk/netsdk/Client_SDK/Talk.h:121: error: candidate is: static void CTalk::RecordFunc(unsigned char*, long unsigned int, intptr_t)
+
+
+
+
+3)platform/common/sofia/sdk/netsdk/TPLayer/ITPObject.cpp: In member function 'int ITPObject::Create(opMode)':
+platform/common/sofia/sdk/netsdk/TPLayer/ITPObject.cpp:1200: error: 'TP_SOCK_UDP' was not declared in this scope
+放开sdk/netsdk/inc/TPTypedef.h中的 TP_SOCK_TYPE定义,删除 TPLayer中的 TPTypedef.h
+
+
+
+
+
+
+
+
+
+4)./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:91: error: 'DHMutex' does not name a type
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: In member function 'SRTPMediaData* CRtpBuffer::PushPubBuffer(const unsigned char*, int)':
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:45: error: 'm_dataBufLock' was not declared in this scope
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: In member function 'int CRtpBuffer::PopPubBuffer(SRTPMediaData*)':
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:82: error: 'm_dataBufLock' was not declared in this scope
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: At global scope:
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:185: error: 'DHMutex' does not name a type
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:202: error: 'DHMutex' does not name a type
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: In member function 'int CRtspClient::GetSeq()':
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:149: error: 'm_stateLock' was not declared in this scope
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp: In member function 'int CRtspApp::RealPlay_open(char*, int, char*, int, int)':
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:96: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:97: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:106: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:108: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:109: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:110: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:133: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:134: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:138: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:145: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:154: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:155: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:156: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:159: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:171: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp: In member function 'int CRtspApp::RealPlay_close()':
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:208: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:209: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+
+
+5)
+platform/common/sofia/sdk/netsdk/inc/atomiccount.cpp: In member function 'bool AtomicCount::ref()':
+platform/common/sofia/sdk/netsdk/inc/atomiccount.cpp:23: error: impossible constraint in 'asm'
+用20170301版本中的dh_atomic.h替换 20170517版本中的原来netsdk中的dh_atomic.h注意差异
+第一:718版本中没有netsdk版本中的__WIN32_OS__的宏定义及包含头文件.
+第二:718版本中具有atomic_t的结构体定义
+第三:718版本中atomic_add_return 中有linux环境下的处理方式
+
+用20170301版本中的atomiccount.h 替换20170517版本中的netsdk中的 atomiccount.h
+第一:需要去掉命名空间
+第二:去掉BASIC_CLASS符号
+
+用20170301版本中的atomiccount.cpp 替换20170517版本中的netsdk中的 atomiccount.cpp
+第一:需要去掉命名空间
+第二:注意区别，原版本具有汇编，718工程由c实现
+
+
+6)
+platform/common/sofia/sdk/netsdk/inc/TBuffer.h:82: error: 'FILE' has not been declared
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:80: error: 'int CTBuffer::MemWriteFile' is not a static member of 'class CTBuffer'
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:80: error: 'FILE' was not declared in this scope
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:80: error: 'pFile' was not declared in this scope
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:80: error: expected primary-expression before 'unsigned'
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:80: error: expected primary-expression before 'int'
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:80: error: initializer expression list treated as compound expression
+platform/common/sofia/sdk/netsdk/inc/TBuffer.cpp:81: error: expected ',' or ';
+
+需要包换"stdio.h", 具有此文件的原头文件有commonhead.h;sys_inc.h;Global.h;Utils.h;
+处理方法，在osIndependent.h中增加 #include <stdio.h>
+
+
+
+7)
+platform/common/sofia/sdk/netsdk/inc/atomiccount.cpp:5:20: error: atomic.h: No such file or directory
+解决方法:
+把718下的atomic.h复制到netsdk/inc/目录下，因为此文件中定义了atomic_add_return等的定义
+
+
+8)
+platform/common/sofia/sdk/netsdk/Client_SDK/DevConfig.cpp:516: error: 'OutputDebugString' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/DevConfig.cpp:527: error: 'OutputDebugString' was not declared in this scope
+解决方法:包含sys_inc.h 此文件包含在netsdk/inc/commonhead.h netsdk/inc/Global.h等文件中
+
+
+
+9)
+platform/common/sofia/sdk/netsdk/Client_SDK/DevControl.cpp:559: error: 'OutputDebugStringA' was not declared in this scope
+解决方法:包含sys_inc.h 此文件包含在netsdk/inc/commonhead.h netsdk/inc/Global.h等文件中
+
+
+
+10)
+包含sys_inc.h 此文件包含在netsdk/inc/commonhead.h netsdk/inc/Global.h等文件中tform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp: In function 'void* pbthreadproc(void*)':
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1837: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1903: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1909: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1916: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1946: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1975: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp: In function 'void* pbthreadprocnew(void*)':
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:1996: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2011: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2034: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2099: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2105: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2112: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2142: error: 'OutputDebugStringA' was not declared in this scope
+platform/common/sofia/sdk/netsdk/Client_SDK/SearchRecordAndPlayBack.cpp:2171: error: 'OutputDebugStringA' was not declared in this scope
+make: *** [out/target/product/generic_arm/obj/STATIC_LIBRARIES/libsdk_intermediates/Client_SDK/SearchRecordAndPlayBack.o] Error 1
+解决方法:包含sys_inc.h 此文件包含在netsdk/inc/commonhead.h netsdk/inc/Global.h等文件中
+
+
+11)
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:185: error: 'DHMutex' does not name a type
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:202: error: 'DHMutex' does not name a type
+fix:#include  "dhmutex.h"
+
+
+12)
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:45: error: 'm_dataBufLock' was not declared in this scope
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: In member function 'int CRtpBuffer::PopPubBuffer(SRTPMediaData*)':
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:82: error: 'm_dataBufLock' was not declared in this scope
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: At global scope:
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h: In member function 'int CRtspClient::GetSeq()':
+./platform/common/sofia/sdk/netsdk/Client_SDK/RtspClient.h:149: error: 'm_stateLock' was not declared in this scope
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp: In member function 'int CRtspApp::RealPlay_open(char*, int, char*, int, int)':
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:96: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:97: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:106: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:108: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:109: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:110: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:133: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:134: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:138: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:145: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:154: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:155: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:156: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:159: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:171: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp: In member function 'int CRtspApp::RealPlay_close()':
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:208: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:209: error: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: error: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:211: warning: possible problem detected in invocation of delete operator:
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:211: warning: invalid use of incomplete type 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspApp.h:32: warning: forward declaration of 'struct RtspClient'
+platform/common/sofia/sdk/netsdk/rtspapp/rtspapp.cpp:211: note: neither the destructor nor the class-specific operator delete will be called, even if they are declared when the class is defined.
+解决方法:删除了32行的两个前置声明
+
+
+找不到CRtspClient类
+(1)rtspapp和Client_SDK中有相同名称的RtspClient.h及cpp文件，但内容完全不同,在Client_SDK的RtspClient.h中才有CRtspClient类
+rtspapp中的为RtspClient类,1月份的时候是把Client_SDK下的 RtspClient.h改为了RtspClient1.h
+
+ "RtspClient1.h"即为原Client_SDK下的RtspClient 文件被如下两个cpp文件引用
+
+./Client_SDK/NetSDK.cpp:22:#include "RtspClient1.h"
+./Client_SDK/RtspClient1.cpp:7:#include "RtspClient1.h"
+./dhnetsdk.cpp:20:#include "RtspClient1.h"
+
+
+二.
+主干分支0601与0517进行整合
+1)
+sdk/Android.mk
+sdk/netsdk/source.mk
+
+2)
+demo 
+Makefile & main.cpp
+
+
+
+
+3)
+#
+##directorymodified:   netsdk/Client_SDK/DevControl.cpp
+#cppmodified:   netsdk/Client_SDK/NetSDK.cpp
+#cppmodified:   netsdk/Client_SDK/NetSDK.h
+#NetSDKdeleted:    netsdk/Client_SDK/RtspClient.cpp
+#cppdeleted:    netsdk/Client_SDK/RtspClient.h
+#RtspClientmodified:   netsdk/Client_SDK/SearchRecordAndPlayBack.h
+#SearchRecordAndPlayBackmodified:   netsdk/Client_SDK/Talk.cpp
+#cppmodified:   netsdk/Client_SDK/dhnetsdk.cpp
+#cppdeleted:    netsdk/Client_SDK/libclient_20170207.h
+#libclient_20170207modified:   netsdk/Client_SDK/libmodelx64.so
+#somodified:   netsdk/TPLayer/ITPObject.cpp
+#cppdeleted:    netsdk/TPLayer/TPTypedef.h
+#TPTypedefdeleted:    netsdk/demo/demo
+#demomodified:   netsdk/inc/TPTypedef.h
+#TPTypedefmodified:   netsdk/inc/atomiccount.cpp
+#cppmodified:   netsdk/inc/atomiccount.h
+#atomiccountmodified:   netsdk/inc/dh_atomic.h
+#dh_atomicmodified:   netsdk/inc/libmodel.h
+#libmodelmodified:   netsdk/inc/osIndependent.h
+#osIndependentmodified:   netsdk/source.mk
+
+
+4)
+(use "git add <file>..." to include in what will be committed)
+#
+##committednetsdk/Client_SDK/DevConfig.cpp.0301
+#0301netsdk/Client_SDK/RtspClient1.cpp
+#cppnetsdk/Client_SDK/RtspClient1.h
+#RtspClient1netsdk/Client_SDK/RtspClient1.h.0301
+#0301netsdk/Client_SDK/dhnetsdk.cpp.0301
+#0301netsdk/Client_SDK/libclient.h.20170207
+#20170207netsdk/TPLayer/TPTypedef20170525.h
+#TPTypedef20170525netsdk/cscope.in.out
+#outnetsdk/cscope.out
+#outnetsdk/cscope.po.out
+#outnetsdk/demo1/
+#demo1netsdk/inc/TBuffer0301.cpp
+#cppnetsdk/inc/TBuffer0301.h
+#TBuffer0301netsdk/inc/atomic.h
+#atomicnetsdk/inc/atomic0301.h
+#atomic0301netsdk/inc/atomiccount0301.cpp
+#cppnetsdk/inc/atomiccount0301.h
+#atomiccount0301netsdk/inc/atomiccount_718.cpp
+#cppnetsdk/inc/atomiccount_718.h
+#atomiccount_718netsdk/inc/atomiccount_netsdk.cpp
+#cppnetsdk/inc/atomiccount_netsdk.h
+#atomiccount_netsdknetsdk/inc/dh_atomic0301.h
+#dh_atomic0301netsdk/inc/dh_atomic_718.h
+#dh_atomic_718netsdk/inc/dh_atomic_netsdk.h
+#dh_atomic_netsdknetsdk/rtspapp/rtspApp0301.h
+#rtspApp0301netsdk/source20170524.mk
+#mknetsdk/tags
+#tagsnetsdk_PCver_GIT/
+
+
+
+
+
+
+
+
