@@ -186,7 +186,7 @@ GetAdaptersInfo 等window下的 Iphlpapi
 
 用 UNIXCON 屏蔽 
 
-(三)StreamParse(原vc工程生成StreamParse.lib，现libStreamParse.so
+(三)StreamParse(原vc工程生成StreamParse.lib, 为静态库，现libStreamParse.so
 1.FrameList.h
 1)不用模板分离编译模式，
 2.utils.h
@@ -196,7 +196,7 @@ GetAdaptersInfo 等window下的 Iphlpapi
 
 
 
-(四)TPLayer的处理(原vc工程TPLayer.lib，现libTPLayer.so)
+(四)TPLayer的处理(原vc工程TPLayer.lib,为静态库，现libTPLayer.so)
 1.dh_atomic.h中
 1)<linux/config.h>
 未添加 ，找不到合适的，就屏蔽吧,
@@ -1281,6 +1281,936 @@ Makefile & main.cpp
 1)回环地址：127.0.0.1，抓取185设备视频流
 
 2)在10.0.14.185设备上抓取10.0.14.186的视频流
+
+
+
+
+
+
+第三任务：
+VCU整合新版本libsdk
+mmm platfomr/common/sofia/stream/adapter -B
+1.错误
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3003: error: 'DWORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3005: error: 'DWORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3010: error: 'DWORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3012: error: 'DWORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3013: error: 'WORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3014: error: 'WORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3020: error: 'DWORD' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3024: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3025: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3026: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3027: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3028: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3029: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3030: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3031: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3032: error: 'BYTE' does not name a type
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:3033: error: 'BYTE' does not name a typ
+
+解决方法:
+在adapter/sdk下加osIndependent.h,typedef.h libclient.h dh_atomic.h
+
+
+2.错误
+./platform/common/sofia/inc/TLV/TlvCfg.h:182: error: conflicting declaration 'typedef enum __cfg_index_t CFG_INDEX'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1258: error: 'CFG_INDEX' has a previous declaration as 'typedef enum _CFG_INDEX CFG_INDEX'
+解决方法:
+屏幕libmodel.h和libsdk.h中的CFG_INDEX
+
+
+3.错误
+./platform/common/sofia/inc/KIT/DVRDEF.H:167: error: conflicting declaration 'typedef struct VD_RECT RECT'
+./platform/common/sofia/stream/adapter/sdk/osIndependent.h:54: error: 'RECT' has a previous declaration as 'typedef struct tagRECT RECT'
+解决方法:
+先把osIndependent.h中的RECT屏蔽掉, 但是为了验证vcu接口,先这样做，但不做正式发布。
+
+4.错误
+./platform/common/sofia/inc/KIT/DVRDEF.H:222: error: conflicting declaration 'typedef union IPADDR IPADDR'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:806: error: 'IPADDR' has a previous declaration as 'typedef union _IPADDR IPADDR'
+解决方法:
+先把libsdk.h中的IPADDR屏蔽掉，这样会导致libsdk编译不通过，但是为了验证vcu接口,先这样做，但不做正式发布。
+
+
+5.错误
+./platform/common/sofia/inc/TLV/TlvCmd.h:415: error: expected identifier before numeric constant
+./platform/common/sofia/inc/TLV/TlvCmd.h:415: error: expected `}' before numeric constant
+./platform/common/sofia/inc/TLV/TlvCmd.h:415: error: expected unqualified-id before numeric constant
+./platform/common/sofia/inc/TLV/TlvCmd.h:465: error: expected declaration before '}' token
+原因:有重复定义如下
+ENCODE_COLOR_TYPE_EX = 423
+ENCODE_COLOR_TYPE_EX_TABLE = 424
+ENCODE_CHANNEL_MUTILE_TITLE = 425
+解决方法:
+屏蔽掉libsdk.h中3个宏定义,
+#define ENCODE_COLOR_TYPE_EX 0x800001A7
+#define ENCODE_COLOR_TYPE_EX_TABEL 424
+#define ENCODE_CHANNEL_MUTILT_TITLE 0x800001A9
+
+
+
+6.错误
+./platform/common/sofia/inc/TLV/TlvApi.h:319: error: conflicting declaration 'CAPTURE_SIZE_D1'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1271: error: 'CAPTURE_SIZE_D1' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_D1'
+./platform/common/sofia/inc/TLV/TlvApi.h:320: error: conflicting declaration 'CAPTURE_SIZE_HD1'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1272: error: 'CAPTURE_SIZE_HD1' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_HD1'
+./platform/common/sofia/inc/TLV/TlvApi.h:321: error: conflicting declaration 'CAPTURE_SIZE_BCIF'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1273: error: 'CAPTURE_SIZE_BCIF' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_BCIF'
+./platform/common/sofia/inc/TLV/TlvApi.h:322: error: conflicting declaration 'CAPTURE_SIZE_CIF'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1274: error: 'CAPTURE_SIZE_CIF' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_CIF'
+./platform/common/sofia/inc/TLV/TlvApi.h:323: error: conflicting declaration 'CAPTURE_SIZE_QCIF'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1275: error: 'CAPTURE_SIZE_QCIF' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_QCIF'
+./platform/common/sofia/inc/TLV/TlvApi.h:324: error: conflicting declaration 'CAPTURE_SIZE_VGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1276: error: 'CAPTURE_SIZE_VGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_VGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:325: error: conflicting declaration 'CAPTURE_SIZE_QVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1277: error: 'CAPTURE_SIZE_QVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_QVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:326: error: conflicting declaration 'CAPTURE_SIZE_SVCD'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1278: error: 'CAPTURE_SIZE_SVCD' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_SVCD'
+./platform/common/sofia/inc/TLV/TlvApi.h:327: error: conflicting declaration 'CAPTURE_SIZE_QQVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1279: error: 'CAPTURE_SIZE_QQVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_QQVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:328: error: conflicting declaration 'CAPTURE_SIZE_720P'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1280: error: 'CAPTURE_SIZE_720P' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_720P'
+./platform/common/sofia/inc/TLV/TlvApi.h:329: error: conflicting declaration 'CAPTURE_SIZE_1080P'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1281: error: 'CAPTURE_SIZE_1080P' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_1080P'
+./platform/common/sofia/inc/TLV/TlvApi.h:330: error: conflicting declaration 'CAPTURE_SIZE_SVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1282: error: 'CAPTURE_SIZE_SVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_SVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:331: error: conflicting declaration 'CAPTURE_SIZE_XVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1283: error: 'CAPTURE_SIZE_XVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_XVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:332: error: conflicting declaration 'CAPTURE_SIZE_WXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1284: error: 'CAPTURE_SIZE_WXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_WXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:333: error: conflicting declaration 'CAPTURE_SIZE_SXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1285: error: 'CAPTURE_SIZE_SXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_SXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:334: error: conflicting declaration 'CAPTURE_SIZE_WSXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1286: error: 'CAPTURE_SIZE_WSXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_WSXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:335: error: conflicting declaration 'CAPTURE_SIZE_UXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1287: error: 'CAPTURE_SIZE_UXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_UXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:336: error: conflicting declaration 'CAPTURE_SIZE_WUXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1288: error: 'CAPTURE_SIZE_WUXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_WUXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:342: error: conflicting declaration 'CAPTURE_SIZE_NR'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1290: error: 'CAPTURE_SIZE_NR' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_NR'
+
+
+7错误
+./platform/common/sofia/inc/TLV/TlvType.h:274: error: using typedef-name 'SNAP_TYPE' after 'enum'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1266: error: 'SNAP_TYPE' has a previous declaration here
+在俩个文件中定义的enum SNAP_TYPE中的成员的名称和值都不同
+
+解决方法:
+先屏蔽,可以netsdk内部还用libmodel.h,对外使用libsdk.h
+
+
+8错误
+./platform/common/sofia/inc/TLV/TlvType.h:352: error: conflicting declaration 'typedef struct tagINNER_VERSION INNER_VERSION'
+./platform/common/sofia/stream/adapter/sdk/libclient.h:599: error: 'INNER_VERSION' has a previous declaration as 'typedef struct _INNER_VERSION_ INNER_VERSION'
+./platform/common/sofia/inc/TLV/TlvType.h:372: error: conflicting declaration 'typedef struct tagMODULE_VERSION MODULE_VERSION'
+./platform/common/sofia/stream/adapter/sdk/libclient.h:613: error: 'MODULE_VERSION' has a previous declaration as 'typedef struct _MODULE_VERSION_ MODULE_VERSION'
+
+解决方法:
+屏蔽libclient.h中的INNER_VERSION,netsdk内部还用没屏蔽INNVER_VERSION的libclient.h
+屏蔽libclient.h中的MODULE_VERSION,netsdk内部还用没屏蔽MODULE_VERSION的libclient.h
+
+
+
+9错误
+./platform/common/sofia/inc/TLV/TlvType.h:1131: error: conflicting declaration 'typedef struct tagRECORD_ABILITY RECORD_ABILITY'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6697: error: 'RECORD_ABILITY' has a previous declaration as 'typedef struct _RECORD_ABILITY RECORD_ABILITY'
+
+解决方法:
+屏蔽libsdk.h中的 RECORD_ABITITY
+
+
+10.错误
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:4209: error: 'SNAP_TYP_NUM' was not declared in this scope
+是由屏蔽了7中的SNAP_TYPE引起的
+
+解决方法:
+先屏蔽掉RVDEV_SNAP_CFG
+
+
+
+11.错误
+./platform/common/sofia/inc/TLV/OldVideo.h:123: error: conflicting declaration 'ISP_VIMICRO_VC356'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6391: error: 'ISP_VIMICRO_VC356' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_VIMICRO_VC356'
+./platform/common/sofia/inc/TLV/OldVideo.h:124: error: conflicting declaration 'ISP_SONY_IT1'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6392: error: 'ISP_SONY_IT1' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_SONY_IT1'
+./platform/common/sofia/inc/TLV/OldVideo.h:125: error: conflicting declaration 'ISP_HITACHI_SC220'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6393: error: 'ISP_HITACHI_SC220' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC220'
+./platform/common/sofia/inc/TLV/OldVideo.h:126: error: conflicting declaration 'ISP_HITACHI_SC110'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6394: error: 'ISP_HITACHI_SC110' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC110'
+./platform/common/sofia/inc/TLV/OldVideo.h:127: error: conflicting declaration 'ISP_HITACHI_SC110E'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6395: error: 'ISP_HITACHI_SC110E' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC110E'
+./platform/common/sofia/inc/TLV/OldVideo.h:128: error: conflicting declaration 'ISP_STARLIGHT'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6396: error: 'ISP_STARLIGHT' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_STARLIGHT'
+./platform/common/sofia/inc/TLV/OldVideo.h:129: error: conflicting declaration 'ISP_HITACHI_SC110JG'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6397: error: 'ISP_HITACHI_SC110JG' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC110JG'
+./platform/common/sofia/inc/TLV/OldVideo.h:130: error: conflicting declaration 'ISP_FTD_6300'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6398
+原因两个枚举结构中的成员定义有冲突，
+解决方法:
+屏蔽掉libsdk.h中ISP_VENDOR_AND_TYPE中冲突的成员
+
+
+
+
+
+
+12.错误
+./platform/common/sofia/inc/TLV/NewVideo.h:192: error: conflicting declaration 'EXPOSURE_MANUAL'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6534: error: 'EXPOSURE_MANUAL' has a previous declaration as 'RV_EXPOSURE_MODE EXPOSURE_MANUAL'
+./platform/common/sofia/inc/TLV/NewVideo.h:193: error: conflicting declaration 'EXPOSURE_AUTO'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6533: error: 'EXPOSURE_AUTO' has a previous declaration as 'RV_EXPOSURE_MODE EXPOSURE_AUTO'
+原因两个枚举结构中的成员定义有冲突，
+解决方法:
+屏蔽掉libsdk.h中RV_EXPOSURE_MODE中冲突的成员, 且冲突的成员在两个枚举中定义的值不同
+
+
+
+13.错误
+./platform/common/sofia/inc/TLV/PtzCmd.h:33: error: expected identifier before numeric constant
+./platform/common/sofia/inc/TLV/PtzCmd.h:33: error: expected `}' before numeric constant
+./platform/common/sofia/inc/TLV/PtzCmd.h:33: error: expected unqualified-id before numeric constant
+./platform/common/sofia/inc/TLV/PtzCmd.h:69: error: expected declaration before '}' token
+原因:
+libsdk.h中关于平台控制的 宏定义与PtzCmd.h中的枚举类型冲突，且数值不一样
+屏蔽掉libsdk.h中的平台控制宏定义
+
+
+
+
+14.错误
+/platform/common/sofia/inc/TLV/PtzCmd.h:176: error: expected identifier before numeric constant
+./platform/common/sofia/inc/TLV/PtzCmd.h:176: error: expected `}' before numeric constant
+./platform/common/sofia/inc/TLV/PtzCmd.h:176: error: expected unqualified-id before numeric constant
+./platform/common/sofia/inc/TLV/PtzCmd.h:178: error: expected declaration before '}' token
+原因libsdk.h中PTZ_DEV与 PTZ_MATRIX 与 PtzCmd.h中 枚举 定义冲突
+解决原因， 先屏蔽掉
+
+
+
+
+
+15.错误
+
+./platform/common/sofia/inc/TLV/PtzCmd.h:225: error: conflicting declaration 'typedef struct tagPTZ_OPT_ATTR PTZ_OPT_ATTR'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:4740: error: 'PTZ_OPT_ATTR' has a previous declaration as 'typedef struct PTZ_OPT_ATTR PTZ_OPT_ATTR'
+可以屏蔽
+./platform/common/sofia/inc/TLV/PtzCmd.h:289: error: redefinition of 'struct tagCONFIG_PTZREGRESS'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6929: error: previous definition of 'struct tagCONFIG_PTZREGRESS'
+PtzCmd.h中有tagCONFIG_PTZREGRESS还有一个 tagNET_CONFIG_PTZREGRESS,
+而libsdk.h中 的tagCONFIG_PTZREGRESS的内容与tagNET_CONFIG_PTZREGRESS内容一致，且只有 一个 
+
+
+./platform/common/sofia/inc/TLV/PtzCmd.h:294: error: invalid type in declaration before ';' token
+./platform/common/sofia/inc/TLV/PtzCmd.h:303: error: conflicting declaration 'typedef struct tagNET_CONFIG_PTZREGRESS NET_CONFIG_PTZREGRESS'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:6936: error: 'NET_CONFIG_PTZREGRESS' has a previous declaration as 'typedef struct tagCONFIG_PTZREGRESS NET_CONFIG_PTZREGRESS'
+
+
+
+16.错误
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int StartVideoEncode(uint, uint)':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:425: error: 'SDK_RealPlay' was not declared in this scope
+解决方法:
+用CLIENT_RealPlayEx代替，注意参数列表，不要用CLIENT_RealPlay
+
+
+17.错误
+:tform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int StopVideoEncode(uint, uint)':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:445: error: 'SDK_StopRealPlay' was not declared in this scope
+解决方法:
+用CLIENT_StopRealPlay代替
+
+
+18.错误 
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:433: error: invalid conversion from 'void (*)(long int, unsigned int, unsigned char*, unsigned int, unsigned int)' to 'void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t)'
+解决方法:
+修改adapter/sdk/vcusdk.cpp中的RealDataCBFunc函数
+
+
+
+19.错误
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int uniit_sdk()':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:503: error: 'SDK_Logout' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:505: error: 'SDK_Cleanup' was not declared in this scope
+
+解决方法:
+用CLIENT_Logout(g_lLoginID);CLIENT_Cleanup();
+
+
+20.错误
+m/tform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int init_sdk()':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:470: error: 'RVNET_PARAM' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:470: error: expected `;' before 'netPar'
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:472: error: 'RVNetDeviceInfo' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:472: error: expected `;' before 'tmpInfo'
+common/sofia/stream/adapter/sdk/vcusdk.cpp:433: error: invalid conversion from 'void (*)(long int, unsigned int, unsigned char*, unsigned int, unsigned int)' to 'void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t)'
+
+解决方法:
+用NET_PARAM;NET_DEVICEINFO
+
+
+
+21.错误
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int init_sdk()':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:476: error: 'SDK_Init' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:483: error: 'SDK_SetNetworkParam' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:491: error: 'SDK_Login' was not declared in this scope
+
+
+解决方法:
+用 CLIENT_Init; CLIENT_SetNetworkParam;CLIENT_Login,暂不用CLIENT_LoginEx
+
+
+22.错误
+m/tform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int Ptz_Ctrl(PTZ_SET_S*)':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:710: error: 'SDK_PTZControl' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:716: error: 'SDK_PTZControl' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:722: error: 'SDK_PTZControl' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:728: error: 'SDK_PTZControl' was not declared in this scope
+解决方法;
+改成:CLIENT_PTZControl
+
+
+23.错误
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int GetAlarmInStatus(int)':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:749: error: 'RVNET_CLIENT_STATE' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:749: error: expected `;' before 'status'
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:751: error: 'status' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:751: error: 'SDK_QueryDevState' was not declared in this scope
+解决方法:
+用NET_CLIENT_STATE;CLIENT_QueryDevState
+
+
+24.错误
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp: In function 'int StopVideoEncode(uint, uint)':
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:447: error: 'SDK_StopRealPlay' was not declared in this scope
+解决方法:
+1.CLIENT_StopRealPlay:
+
+
+
+25.错误
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:435: error: invalid conversion from 'void (*)(intptr_t, unsigned int, unsigned char*, unsigned int, intptr_t)' to 'void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t)'
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:435: error:   initializing argument 2 of 'int CLIENT_SetRealDataCallBack(intptr_t, void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t), intptr_t)
+解决方法:
+32,64位机器上unsigned int 都为32位
+64位机器上unsigned long 为64位， 32位机器上为32位
+RealDataCBFunc中的DWORD改为unsigned long,
+
+26.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_IframeInterval(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:786: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:807: error: 'SDK_SetDevConfig' was not declared in this scope
+解决方法:
+CLIENT_GetDevConfig
+CLIENT_SetDevConfig
+
+
+27.错误
+cotform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_IframeInterval(int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:750: error: 'SDK_GetDevConfig' was not declared in this scope
+mmon/ddsofia/stream/adapter/sdk/vcusdk.cpp:433: error: invalid conversion from 'void (*)(long int, unsigned int, unsigned char*, unsigned int, unsigned int)' to 'void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t)'
+
+28.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_VideoRes(int, int, char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:715: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:726: error: 'SDK_SetDevConfig' was not declared in this scope
+
+29.错误
+cotform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_VideoRes(int, int, char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:670: error: 'SDK_GetDevConfig' was not declared in this scopemmon/ddsofia/stream/adapter/sdk/vcusdk.cpp:433: error: invalid conversion from 'void (*)(long int, unsigned int, unsigned char*, unsigned int, unsigned int)' to 'void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t)'
+
+30.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_VideoFrameRate(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:594: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:605: error: 'SDK_SetDevConfig' was not declared in this scope
+
+
+31.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_VideoFrameRate(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:594: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:605: error: 'SDK_SetDevConfig' was not declared in this scope
+
+
+
+32.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_VideoBitRateType(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:531: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:542: error: 'SDK_SetDevConfig' was not declared in this scope
+
+33.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_VideoBitRateType(int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:504: error: 'SDK_GetDevConfig' was not declared in this scope
+
+34.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_VideoBitRate(int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:442: error: 'SDK_GetDevConfig' was not declared in this scope
+
+35.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_VideoBitRate(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:469: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:480: error: 'SDK_SetDevConfig' was not declared in this scope
+解决方法:
+
+36.错误
+tform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_EncodeMode(int, int, char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:234: error: 'ECOMPRESSION_MODE_NR' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:236: error: 'fmtlist' was not declared in this scope
+ECOMPRESSION_MODE_NR如何处理，老的libmodel.h中有，新的被注释掉.可以放在基于libmodel.h修改的libsdk.h中，但libmodel.h还保持屏蔽
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:240: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:251: error: 'SDK_SetDevConfig' was not declared in this scope
+
+37.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_VideoPicQuality(int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:276: error: 'SDK_GetDevConfig' was not declared in this scope
+
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_VideoPicQuality(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:311: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:322: error: 'SDK_SetDevConfig' was not declared in this scope
+
+38.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_VideoType(int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:346: error: 'SDK_GetDevConfig' was not declared in this scope
+
+39.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_VideoType(int, int, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:385: error: 'SDK_GetDevConfig' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:418: error: 'SDK_SetDevConfig' was not declared in this scope
+
+
+
+40.错误
+tform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_AlarmInNum()':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:72: error: 'SDK_GetDevConfig' was not declared in this scope
+
+41.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_AlarmOutNum()':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:96: error: 'SDK_GetDevConfig' was not declared in this scope
+
+42.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_SoftVersion(char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:133: error: 'SDK_GetDevConfig' was not declared in this scope
+
+43.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_HardVersion(char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:158: error: 'SDK_GetDevConfig' was not declared in this scope
+
+44.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_SerialNumber(char*, int)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:183: error: 'SDK_GetDevConfig' was not declared in this scope
+
+45.错误
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_EncodeMode(int, int, char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:208: error: 'SDK_GetDevConfig' was not declared in this scope
+
+home/zhangzhijie/work/hawk20170601/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include/stddef.h:400:1: warning: this is the location of the previous definition
+In file included from ./platform/common/sofia/stream/adapter/sdk/libsdk.h:16,
+                 from platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:28:
+
+46.错误
+./platform/common/sofia/stream/adapter/sdk/typedef.h:31: error: duplicate 'unsigned'
+./platform/common/sofia/stream/adapter/sdk/typedef.h:31: error: declaration does not declare anything
+
+In file included from ./platform/common/sofia/inc/KIT/DVRDEF.H:6,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:4,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/KIT/VTypes.h:81:1: warning: "LPBYTE" redefined
+
+解決方法:
+#ifndef DWORD
+typedef unsigned long DWORD 
+#endif
+
+
+
+47.錯誤
+./platform/common/sofia/stream/adapter/sdk/typedef.h:30: error: duplicate 'unsigned'
+./platform/common/sofia/stream/adapter/sdk/typedef.h:30: error: multiple types in one declaration
+./platform/common/sofia/stream/adapter/sdk/typedef.h:30: error: declaration does not declare anything
+
+
+In file included from ./platform/common/sofia/stream/adapter/sdk/libsdk.h:16,
+  from platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:28:
+  ./platform/common/sofia/stream/adapter/sdk/typedef.h:120:1: warning: "DWORD" redefined
+  In file included from ./platform/common/sofia/inc/KIT/DVRDEF.H:6,
+  from ./platform/common/sofia/inc/API/Net.h:4,
+  from platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:22:
+  ./platform/common/sofia/inc/KIT/VTypes.h:87:1: warning: this is the location of the previous definition
+
+48.錯誤
+
+In file included from platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:28:
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5569: error: expected unqualified-id before 'void'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5569: error: expected initializer before 'void'
+
+解決方法:
+#ifndef VD_HANDLE
+#endif
+
+
+49.錯誤
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5570: error: multiple types in one declaration
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5570: error: declaration does not declare anything
+
+解決方法:
+#ifndef VD_BOOL
+#endif
+
+
+
+50.用307viss帐号，一直无法出图原因
+是由于 /lib/libstream.so 加载失败，undefined symbol :VCU_GET_AudioEncType导致
+在 /stream/adapter/sdk/vcuapi.cpp中加入
+int VCU_GET_AudioEncType(uint chan)
+{
+	return 0;	
+}
+
+51.build/core/binary.mk:391: target `out/target/product/generic_arm/obj/STATIC_LIBRARIES/libkit_intermediates/base/IPC.o' given more than once in the same rule.
+build/core/base_rules.mk:171: *** platform/common/sofia/stream/adapter: MODULE.TARGET.SHARED_LIBRARIES.libstream already defined by platform/common/sofia/stream/adapter.  Stop.
+产生原因:
+是由于在此sofia/stream下做了一个 adapter_backup的备份文件夹，但产生机制需要再次确认
+
+
+
+四.第四任务, 处理唐工7月18日调整的libmodel.h 
+1.libmodel.h中文件名改为libsdk.h,且 原文件宏定义VD_CLIENT_SDK_H改为__LIBSDK_H__
+
+
+
+
+2.
+./platform/common/sofia/inc/KIT/Asn1Tool.h:44: error: template with C linkage
+./platform/common/sofia/inc/KIT/Asn1Tool.h:123: error: template with C linkage
+./platform/common/sofia/inc/KIT/Asn1Tool.h:148: error: template with C linkage
+./platform/common/sofia/inc/KIT/Asn1Tool.h:289: error: template with C linkage
+In file included from /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/map:65,
+   from ./platform/common/sofia/inc/KIT/json/value.h:9,
+   from ./platform/common/sofia/inc/KIT/json/json.h:5,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:7,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:131: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:142: error: declaration of C function 'const std::_Rb_tree_node_base* std::_Rb_tree_increment(const std::_Rb_tree_node_base*)' conflicts with
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:139: error: previous declaration 'std::_Rb_tree_node_base* std::_Rb_tree_increment(std::_Rb_tree_node_base*)' here
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:148: error: declaration of C function 'const std::_Rb_tree_node_base* std::_Rb_tree_decrement(const std::_Rb_tree_node_base*)' conflicts with
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:145: error: previous declaration 'std::_Rb_tree_node_base* std::_Rb_tree_decrement(std::_Rb_tree_node_base*)' here
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:150: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:220: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:295: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:301: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:318: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:741: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:751: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:761: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:768: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:775: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:782: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:789: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:820: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:842: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:861: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:879: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:896: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:932: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:948: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:964: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:980: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:996: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1012: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1043: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1074: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1128: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1157: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1174: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1233: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1287: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1298: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1309: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1323: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1337: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1349: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1362: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1375: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1385: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1398: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1411: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_tree.h:1426: error: template with C linkage
+   In file included from /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/map:66,
+   from ./platform/common/sofia/inc/KIT/json/value.h:9,
+   from ./platform/common/sofia/inc/KIT/json/json.h:5,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:7,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:89: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:753: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:770: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:777: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:784: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:791: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:798: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_map.h:805: error: template with C linkage
+   In file included from /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/map:67,
+   from ./platform/common/sofia/inc/KIT/json/value.h:9,
+   from ./platform/common/sofia/inc/KIT/json/json.h:5,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:7,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:88: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:683: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:700: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:707: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:714: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:721: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:728: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multimap.h:735: error: template with C linkage
+   In file included from /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/stack:67,
+   from ./platform/common/sofia/inc/KIT/json/reader.h:7,
+   from ./platform/common/sofia/inc/KIT/json/json.h:6,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:7,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:97: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:236: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:254: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:260: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:266: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:272: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_stack.h:278: error: template with C linkage
+   In file included from ./platform/common/sofia/inc/KIT/json/json.h:7,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:7,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/KIT/json/writer.h:86: error: declaration of C function 'void Json::valueToString(std::string&, unsigned int)' conflicts with
+   ./platform/common/sofia/inc/KIT/json/writer.h:85: error: previous declaration 'void Json::valueToString(std::string&, int)' here
+   ./platform/common/sofia/inc/KIT/json/writer.h:87: error: declaration of C function 'void Json::valueToString(std::string&, double)' conflicts with
+   ./platform/common/sofia/inc/KIT/json/writer.h:86: error: previous declaration 'void Json::valueToString(std::string&, unsigned int)' here
+   ./platform/common/sofia/inc/KIT/json/writer.h:88: error: declaration of C function 'void Json::valueToString(std::string&, bool)' conflicts with
+   ./platform/common/sofia/inc/KIT/json/writer.h:87: error: previous declaration 'void Json::valueToString(std::string&, double)' here
+   In file included from /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/set:66,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:9,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:90: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:594: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:611: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:618: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:625: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:632: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:639: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_set.h:646: error: template with C linkage
+   In file included from /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/set:67,
+   from ./platform/common/sofia/inc/KIT/ConfigBase.h:9,
+   from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:87: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:580: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:597: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:604: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:611: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:618: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:625: error: template with C linkage
+   /home/zhangzhijie/work/hawk20170711/prebuilts/gcc/linux-x86/arm/arm-none-linux-gnueabi-4.3.3/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/../../../../arm-none-linux-gnueabi/include/c++/4.3.3/bits/stl_multiset.h:632: error: template with C linkage
+   In file included from ./platform/common/sofia/inc/KIT/kitdef.h:31,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:4,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/KIT/ConfigBase.h:143: error: template with C linkage
+   ./platform/common/sofia/inc/KIT/ConfigBase.h:146: error: template with C linkage
+   ./platform/common/sofia/inc/KIT/ConfigBase.h:221: error: template with C linkage
+   ./platform/common/sofia/inc/KIT/ConfigBase.h:224: error: template with C linkage
+   ./platform/common/sofia/inc/KIT/ConfigBase.h:227: error: template with C linkage
+   关于linkage的 解决方法 :
+   /C++混用的项目时，可能会遇到这个问题。
+
+   1.某个头文件中extern “C”的使用存在问题，如果包含这个有问题的头文件之后，又包含<map>,<vector>等就会出现这个问题。
+
+   1). 需要检查extern "C"后面为一个函数 
+
+   extern "C" int get_value(void);
+
+   2). extern "C" { }的定义是否完整。
+
+#ifdef __cplusplus
+
+   extern "C" {
+
+#endif
+
+#ifdef __cplusplus
+
+   }
+
+#endif
+
+2. 不要在extern "C"的中引用C++ STL库的头文件，如<map>, <vector>等具有template的头文件。
+
+extern "language_name" declaration ;
+extern "language_name" { declaration ; declaration ; ... }
+
+extern "C" {
+	void f();             // C linkage
+	extern "C++" {
+		void g();         // C++ linkage
+		extern "C" void h(); // C linkage
+		void g2();        // C++ linkage
+	}
+	extern "C++" void k();// C++ linkage
+	void m();             // C linkage
+}
+
+
+
+3../platform/common/sofia/inc/KIT/DVRDEF.H:185: error: conflicting declaration 'typedef struct VD_RECT RECT'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:7301: error: 'RECT' has a previous declaration as 'typedef struct tagRECT RECT'
+In file included from ./platform/common/sofia/inc/TLV/tlvdef.h:10,
+   from ./platform/common/sofia/stream/adapter/vcu/vcudef.h:5,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:5,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/TLV/TlvCmd.h:420: error: expected identifier before numeric constant
+   ./platform/common/sofia/inc/TLV/TlvCmd.h:420: error: expected `}' before numeric constant
+   421:error
+   422:error
+   ./platform/common/sofia/inc/TLV/TlvCmd.h:420: error: expected unqualified-id before numeric constant
+   ./platform/common/sofia/inc/TLV/TlvCmd.h:497: error: expected declaration before '}' token
+解决方法:
+1)原来文件为REALEASE_HEADER
+现在屏蔽了RECT  
+2)ENCODE_COLOR_TYPE_EX重复定义了
+所以屏蔽
+3)屏蔽了ENCODE_COLOR_TYPE_EX_TABLE
+4)屏蔽了ENCODE_CHANNEL_MUTILE_TITLE
+
+
+4../platform/common/sofia/inc/TLV/TlvApi.h:319: error: conflicting declaration 'CAPTURE_SIZE_D1'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1511: error: 'CAPTURE_SIZE_D1' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_D1'
+./platform/common/sofia/inc/TLV/TlvApi.h:320: error: conflicting declaration 'CAPTURE_SIZE_HD1'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1512: error: 'CAPTURE_SIZE_HD1' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_HD1'
+./platform/common/sofia/inc/TLV/TlvApi.h:321: error: conflicting declaration 'CAPTURE_SIZE_BCIF'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1513: error: 'CAPTURE_SIZE_BCIF' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_BCIF'
+./platform/common/sofia/inc/TLV/TlvApi.h:322: error: conflicting declaration 'CAPTURE_SIZE_CIF'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1514: error: 'CAPTURE_SIZE_CIF' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_CIF'
+./platform/common/sofia/inc/TLV/TlvApi.h:323: error: conflicting declaration 'CAPTURE_SIZE_QCIF'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1515: error: 'CAPTURE_SIZE_QCIF' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_QCIF'
+./platform/common/sofia/inc/TLV/TlvApi.h:324: error: conflicting declaration 'CAPTURE_SIZE_VGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1516: error: 'CAPTURE_SIZE_VGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_VGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:325: error: conflicting declaration 'CAPTURE_SIZE_QVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1517: error: 'CAPTURE_SIZE_QVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_QVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:326: error: conflicting declaration 'CAPTURE_SIZE_SVCD'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1518: error: 'CAPTURE_SIZE_SVCD' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_SVCD'
+./platform/common/sofia/inc/TLV/TlvApi.h:327: error: conflicting declaration 'CAPTURE_SIZE_QQVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1519: error: 'CAPTURE_SIZE_QQVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_QQVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:328: error: conflicting declaration 'CAPTURE_SIZE_720P'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1520: error: 'CAPTURE_SIZE_720P' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_720P'
+./platform/common/sofia/inc/TLV/TlvApi.h:329: error: conflicting declaration 'CAPTURE_SIZE_1080P'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1521: error: 'CAPTURE_SIZE_1080P' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_1080P'
+./platform/common/sofia/inc/TLV/TlvApi.h:330: error: conflicting declaration 'CAPTURE_SIZE_SVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1522: error: 'CAPTURE_SIZE_SVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_SVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:331: error: conflicting declaration 'CAPTURE_SIZE_XVGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1523: error: 'CAPTURE_SIZE_XVGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_XVGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:332: error: conflicting declaration 'CAPTURE_SIZE_WXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1524: error: 'CAPTURE_SIZE_WXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_WXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:333: error: conflicting declaration 'CAPTURE_SIZE_SXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1525: error: 'CAPTURE_SIZE_SXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_SXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:334: error: conflicting declaration 'CAPTURE_SIZE_WSXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1526: error: 'CAPTURE_SIZE_WSXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_WSXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:335: error: conflicting declaration 'CAPTURE_SIZE_UXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1527: error: 'CAPTURE_SIZE_UXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_UXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:336: error: conflicting declaration 'CAPTURE_SIZE_WUXGA'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1528: error: 'CAPTURE_SIZE_WUXGA' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_WUXGA'
+./platform/common/sofia/inc/TLV/TlvApi.h:342: error: conflicting declaration 'CAPTURE_SIZE_NR'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:1530: error: 'CAPTURE_SIZE_NR' has a previous declaration as '_CAPTURE_SIZE CAPTURE_SIZE_NR'
+解决方法:
+屏蔽了CAPTURE_SIZE中除CAPTURE_SIZE_960P的其它成员,且赋值=18 
+
+5.
+In file included from ./platform/common/sofia/inc/TLV/tlvdef.h:15,
+   from ./platform/common/sofia/stream/adapter/vcu/vcudef.h:5,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:5,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/TLV/OldVideo.h:123: error: conflicting declaration 'ISP_VIMICRO_VC356'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6692: error: 'ISP_VIMICRO_VC356' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_VIMICRO_VC356'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:124: error: conflicting declaration 'ISP_SONY_IT1'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6693: error: 'ISP_SONY_IT1' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_SONY_IT1'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:125: error: conflicting declaration 'ISP_HITACHI_SC220'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6694: error: 'ISP_HITACHI_SC220' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC220'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:126: error: conflicting declaration 'ISP_HITACHI_SC110'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6695: error: 'ISP_HITACHI_SC110' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC110'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:127: error: conflicting declaration 'ISP_HITACHI_SC110E'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6696: error: 'ISP_HITACHI_SC110E' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC110E'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:128: error: conflicting declaration 'ISP_STARLIGHT'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6697: error: 'ISP_STARLIGHT' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_STARLIGHT'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:129: error: conflicting declaration 'ISP_HITACHI_SC110JG'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6698: error: 'ISP_HITACHI_SC110JG' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_HITACHI_SC110JG'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:130: error: conflicting declaration 'ISP_FTD_6300'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6699: error: 'ISP_FTD_6300' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_FTD_6300'
+   ./platform/common/sofia/inc/TLV/OldVideo.h:131: error: conflicting declaration 'ISP_Panasonic_MH3XX'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6700: error: 'ISP_Panasonic_MH3XX' has a previous declaration as 'ISP_VENDER_AND_TYPE ISP_Panasonic_MH3XX'
+解决方法:
+屏蔽了ISP_VENDER_AND_TYPE枚举类型
+
+6.
+
+   In file included from ./platform/common/sofia/inc/TLV/tlvdef.h:16,
+   from ./platform/common/sofia/stream/adapter/vcu/vcudef.h:5,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:5,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/TLV/NewVideo.h:192: error: conflicting declaration 'EXPOSURE_MANUAL'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6835: error: 'EXPOSURE_MANUAL' has a previous declaration as 'RV_EXPOSURE_MODE EXPOSURE_MANUAL'
+   ./platform/common/sofia/inc/TLV/NewVideo.h:193: error: conflicting declaration 'EXPOSURE_AUTO'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:6834: error: 'EXPOSURE_AUTO' has a previous declaration as 'RV_EXPOSURE_MODE EXPOSURE_AUTO'
+解决方法：
+屏蔽了RV_EXPOSURE_MODE
+
+7.
+   In file included from ./platform/common/sofia/inc/TLV/tlvdef.h:17,
+   from ./platform/common/sofia/stream/adapter/vcu/vcudef.h:5,
+   from ./platform/common/sofia/stream/adapter/sdk/vcusdk.h:5,
+   from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:5:
+   ./platform/common/sofia/inc/TLV/PtzCmd.h:225: error: conflicting declaration 'typedef struct tagPTZ_OPT_ATTR PTZ_OPT_ATTR'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:5046: error: 'PTZ_OPT_ATTR' has a previous declaration as 'typedef struct PTZ_OPT_ATTR PTZ_OPT_ATTR'
+解决方法:
+屏蔽了PTZ_OPT_ATTR
+
+8.
+   ./platform/common/sofia/inc/TLV/PtzCmd.h:289: error: redefinition of 'struct tagCONFIG_PTZREGRESS'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:7223: error: previous definition of 'struct tagCONFIG_PTZREGRESS'
+   ./platform/common/sofia/inc/TLV/PtzCmd.h:294: error: invalid type in declaration before ';' token
+   ./platform/common/sofia/inc/TLV/PtzCmd.h:303: error: conflicting declaration 'typedef struct tagNET_CONFIG_PTZREGRESS NET_CONFIG_PTZREGRESS'
+   ./platform/common/sofia/stream/adapter/sdk/libsdk.h:7230: error: 'NET_CONFIG_PTZREGRESS' has a previous declaration as 'typedef struct tagCONFIG_PTZREGRESS NET_CONFIG_PTZREGRESS'
+解决方法:
+屏蔽了tagCONFIG_PTZREGRESS
+
+9.
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:435: error: invalid conversion from
+'void (*)(long int, long unsigned int, unsigned char*, long unsigned int, long int)' to 
+'void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t)'
+platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:435: error:   initializing argument 2 of 
+'int CLIENT_SetRealDataCallBack(intptr_t, void (*)(intptr_t, long unsigned int, unsigned char*, long unsigned int, intptr_t), intptr_t)'
+原因是因为原linux版本中的#define intptr_t long
+没起作用,目录下的osIndependent.h文件的文件宏定义RV_OSINDEPENDENT_H起了作用 
+解决方法:
+把目录下的osIndependent.h文件去除
+因RELEASE_HEADER在NetClient/dhnetsdk.h中定义，故采用RV_OSINDEPENDENT_H来处理
+//建议typedef.h或这osIndepent.h中加上#define intptr_t long 的定义
+目前屏蔽了#define intptr_t LONG
+
+
+10.FRtspCallBack(LONG Handle, unsigned char *pBuffer,int nParam, int nUser)
+处理:
+暂时屏蔽#define intptr_t LONG
+
+
+
+
+11.
+In file included from platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:28:
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:43: error: duplicate 'unsigned'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:43: error: multiple types in one declaration
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:43: error: declaration does not declare anything
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:44: error: duplicate 'unsigned'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:44: error: declaration does not declare anything
+解决方法:
+
+43行和44行的typedef unsigned char BYTE
+typedef unsigned long DWORD
+用#ifndef BYTE
+#endif
+
+#ifndef DWORD
+#endif
+
+
+12.
+In file included from platform/common/sofia/stream/adapter/sdk/vcusdk.cpp:4:
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:61: error: 'DWORD' does not name a type
+#ifndef ULONG
+typedef DWORD ULONG
+#endif
+
+
+13.
+In file included from platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:28:
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5871: error: expected unqualified-id before 'void'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5871: error: expected initializer before 'void'
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5872: error: multiple types in one declaration
+./platform/common/sofia/stream/adapter/sdk/libsdk.h:5872: error: declaration does not declare anything
+解决方法:
+#ifndef VD_HANDLE
+typedef void*  VD_HANDLE;
+#endif
+
+#ifndef VD_BOOL
+typedef int VD_BOOL;
+#endif
+
+
+14.platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:45: error: 'ECOMPRESSION_MODE_NR' was not declared in this scope
+放开:
+ECOMPROSSION_MODE定义
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_GET_EncodeMode(int, int, char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:225: error: 'fmtlist' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:227: error: 'fmtlist' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp: In function 'int VCU_SET_EncodeMode(int, int, char*)':
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:247: error: 'ECOMPRESSION_MODE_NR' was not declared in this scope
+platform/common/sofia/stream/adapter/sdk/vcuapi.cpp:249: error: 'fmtlist' was not declared in this scope
+
+15.typedef  void(CALLBACK * FRtspCallBack)(LONG lHandle unsigned char *pBuffer, int nParam, int nUser);
+中的LONG改为intptr_t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
